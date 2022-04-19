@@ -1,3 +1,7 @@
+/// helper module to
+/// - read the cli arguments
+/// - read in the file, defining the start table
+/// - and determine the table - width ( = height)
 use std::env;
 use std::fs;
 

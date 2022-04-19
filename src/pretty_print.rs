@@ -1,3 +1,26 @@
+/// return a pretty table ( as String )
+///
+/// String abc are the cell-values to use
+///  - 0
+///  - 1
+///  - / or . for an empty set_field
+///
+/// width is the width ( and height ) of the Board
+///
+/// # Examples
+///
+/// ```
+/// let tbl = pprint(".1.0..0..0..11.0", 4);
+/// assert_eq!("  ╔═══════════════╗
+///  ║ . │ 1 │ . │ 0 ║
+///  ║───┼───┼───┼───║
+///  ║ . │ . │ 0 │ . ║
+///  ║───┼───┼───┼───║
+///  ║ . │ 0 │ . │ . ║
+///  ║───┼───┼───┼───║
+///  ║ 1 │ 1 │ . │ 0 ║
+///  ╚═══════════════╝", tbl);
+/// ```
 pub fn pprint(abc: &str, width: usize) -> String {
     let mut mabc = abc.chars().rev().collect::<String>();
     let act_board: String = mk_template(width)
@@ -34,4 +57,36 @@ fn mk_template(width: usize) -> String {
     tmp.push_str(&lines[1]);
     tmp.push_str(&lines[3]);
     tmp
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_pprint_4x4() {
+        let tbl = pprint(".1.0..0..0..11.0", 4);
+        assert_eq!(
+            "
+  ╔═══════════════╗
+  ║ . │ 1 │ . │ 0 ║
+  ║───┼───┼───┼───║
+  ║ . │ . │ 0 │ . ║
+  ║───┼───┼───┼───║
+  ║ . │ 0 │ . │ . ║
+  ║───┼───┼───┼───║
+  ║ 1 │ 1 │ . │ 0 ║
+  ╚═══════════════╝\n",
+            tbl
+        );
+    }
+
+    #[test]
+    fn test_template_2() {
+        let tmpl = mk_template(2);
+        assert_eq!(
+            "\n  ╔═══════╗\n  ║ x │ x ║\n  ║───┼───║\n  ║ x │ x ║\n  ╚═══════╝\n",
+            tmpl
+        );
+    }
 }

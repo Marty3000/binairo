@@ -1,3 +1,5 @@
+/// wrapper to illustrate the usage of board and pretty_print module
+
 use std::time::Instant;
 
 mod board;
@@ -15,13 +17,7 @@ fn main() {
     let now = Instant::now();
     let mut fld = board::Board::new(width);
     fld.init(&abc);
-    /*
-        println!("{}", fld.print());
-        println!(
-            "  fld pretty_print: {}",
-            pretty_print::pprint(&fld.print(), width)
-        );
-    */
+
     let sols = fld.solve(num);
     let elapsed = now.elapsed();
     println!("  Found {} Solution(s):", sols.len());

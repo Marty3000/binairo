@@ -1,3 +1,4 @@
+/// solves a binairo
 use std::cmp::max;
 
 const NEIGHBOR: [(i8, i8); 4] = [(0, 1), (1, 0), (0, -1), (-1, 0)];
@@ -42,21 +43,21 @@ impl Board {
             }
         }
 
-        let (best_x, best_y) = self.get_first_guess();
-        if best_x == self.width || best_y == self.width {
+        let (next_x, next_y) = self.get_first_guess();
+        if next_x == self.width || next_y == self.width {
             if !self.is_valid() {
                 return sol;
             }
             sol.push(self.print());
             return sol;
         }
-        for best_val in &self.possible[best_y][best_x] {
+        for next_val in &self.possible[next_y][next_x] {
             let mut nxt_move: Board = Board {
                 width: self.width,
                 field: self.field.clone(),
                 possible: self.possible.clone(),
             };
-            nxt_move.set_field(best_x, best_y, *best_val);
+            nxt_move.set_field(next_x, next_y, *next_val);
             if nxt_move.is_valid() {
                 let mut nxt_sol = nxt_move.solve(num - sol.len());
                 if !nxt_sol.is_empty() {
@@ -70,7 +71,6 @@ impl Board {
         sol
     }
 
-    // private functions start here
 
     fn set_field(&mut self, x: usize, y: usize, val: u8) {
         self.field[y][x] = val;
