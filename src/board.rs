@@ -128,6 +128,13 @@ impl Board {
         }
         if self.max_0 + self.max_1 == self.width {
             if row_0 == self.max_0 && row_1 < self.max_1 {
+                /*
+                let my_range = 0..self.width;
+                my_range
+                    .into_iter()
+                    .filter(|i| self.field[y][*i] == -1)
+                    .for_each(|j| self.possible[y][j].retain(|e| *e == 1));
+                */
                 for i in 0..self.width {
                     if self.field[y][i] == -1 {
                         self.possible[y][i].retain(|e| *e == 1);
