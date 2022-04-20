@@ -9,8 +9,8 @@
 ---
 ## binairo rules
 
-As far as i know, the objective is to fill a NxN grid with 1s and 0s, so that
-* there is an equal number of 1s and 0s in each row and column and
+As far as i know, the objective is to fill a quadratic NxN grid with 1s and 0s, so that
+* there is an equal number of 1s and 0s in each row and column of the grid and
 * there is no cell that has the same number in the left and right cell or in the upper and down cell.
 
 ---
@@ -68,7 +68,7 @@ $ ./target/release/binairo ./examples/6x6.cfg
   ║ 0 │ 1 │ 1 │ 0 │ 1 │ 0 ║
   ╚═══════════════════════╝
 
-  Time: 0.000106227 sec
+  Time: 0.000047579 sec
 ```
 
 
@@ -169,7 +169,7 @@ $ ./target/release/binairo ./examples/10x10.cfg 5
   ║ 1 │ 1 │ 0 │ 1 │ 1 │ 0 │ 0 │ 1 │ 0 │ 0 ║
   ╚═══════════════════════════════════════╝
 
-  Time: 0.010668784 sec
+  Time: 0.000597198 sec
 ```
 
 ---

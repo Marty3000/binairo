@@ -5,16 +5,20 @@ const NEIGHBOR: [(i8, i8); 4] = [(0, 1), (1, 0), (0, -1), (-1, 0)];
 
 pub struct Board {
     width: usize,
-    field: Vec<Vec<u8>>,
-    possible: Vec<Vec<Vec<u8>>>,
+    max_0: usize,
+    max_1: usize,
+    field: Vec<Vec<i8>>,
+    possible: Vec<Vec<Vec<i8>>>,
 }
 
 impl Board {
     pub fn new(width: usize) -> Self {
         Self {
             width,
-            field: vec![vec![0; width]; width],
-            possible: vec![vec![vec![1, 2]; width]; width],
+            max_0: 0,
+            max_1: 0,
+            field: vec![vec![-1; width]; width],
+            possible: vec![vec![vec![0, 1]; width]; width],
         }
     }
 
@@ -22,8 +26,8 @@ impl Board {
         let mut mabc = abc.chars().rev().collect::<String>();
         for y in 0..self.width {
             for x in 0..self.width {
-                let val = max(47, mabc.pop().unwrap() as u8) - 47;
-                if 0 < val {
+                let val = max(47, mabc.pop().unwrap() as i8) - 48;
+                if -1 < val {
                     self.set_field(x, y, val);
                 }
             }
@@ -45,15 +49,16 @@ impl Board {
 
         let (next_x, next_y) = self.get_first_guess();
         if next_x == self.width || next_y == self.width {
-            if !self.is_valid() {
-                return sol;
+            if self.is_valid() {
+                sol.push(self.print());
             }
-            sol.push(self.print());
             return sol;
         }
         for next_val in &self.possible[next_y][next_x] {
             let mut nxt_move: Board = Board {
                 width: self.width,
+                max_0: self.max_0,
+                max_1: self.max_1,
                 field: self.field.clone(),
                 possible: self.possible.clone(),
             };
@@ -71,13 +76,12 @@ impl Board {
         sol
     }
 
-
-    fn set_field(&mut self, x: usize, y: usize, val: u8) {
+    fn set_field(&mut self, x: usize, y: usize, val: i8) {
         self.field[y][x] = val;
         self.set_pfeld(x, y, val);
     }
 
-    fn set_pfeld(&mut self, x: usize, y: usize, val: u8) {
+    fn set_pfeld(&mut self, x: usize, y: usize, val: i8) {
         self.possible[y][x] = vec![val];
         for (nx, ny) in NEIGHBOR {
             let y_tst: i8 = y as i8 + nx;
@@ -100,7 +104,7 @@ impl Board {
                         self.possible[y_two.abs() as usize][x_two.abs() as usize]
                             .retain(|e| e != &val);
                     }
-                } else if neigh_val == 0 {
+                } else if neigh_val == -1 {
                     let y_two: i8 = y as i8 + 2 * nx;
                     let x_two: i8 = x as i8 + 2 * ny;
                     if valid_coord(&self.width, &x_two, &y_two)
@@ -113,32 +117,77 @@ impl Board {
                 }
             }
         }
+        let (row_0, col_0, row_1, col_1) = self.counter(x, y);
+        if self.max_0 + self.max_1 < self.width {
+            if self.max_0 < max(row_0, col_0) {
+                self.max_0 = max(row_0, col_0);
+            }
+            if self.max_1 < max(row_1, col_1) {
+                self.max_1 = max(row_1, col_1);
+            }
+        }
+        if self.max_0 + self.max_1 == self.width {
+            if row_0 == self.max_0 && row_1 < self.max_1 {
+                for i in 0..self.width {
+                    if self.field[y][i] == -1 {
+                        self.possible[y][i].retain(|e| *e == 1);
+                    }
+                }
+            }
+            if row_0 < self.max_0 && row_1 == self.max_1 {
+                for i in 0..self.width {
+                    if self.field[y][i] == -1 {
+                        self.possible[y][i].retain(|e| *e == 0);
+                    }
+                }
+            }
+            if col_0 == self.max_0 && col_1 < self.max_1 {
+                for i in 0..self.width {
+                    if self.field[i][x] == -1 {
+                        self.possible[i][x].retain(|e| *e == 1);
+                    }
+                }
+            }
+            if col_0 < self.max_0 && col_1 == self.max_1 {
+                for i in 0..self.width {
+                    if self.field[i][x] == -1 {
+                        self.possible[i][x].retain(|e| *e == 0);
+                    }
+                }
+            }
+        }
+    }
+
+    fn counter(&self, x: usize, y: usize) -> (usize, usize, usize, usize) {
+        let mut row_0: usize = 0;
+        let mut col_0: usize = 0;
+        let mut row_1: usize = 0;
+        let mut col_1: usize = 0;
+        for i in 0..self.width {
+            match self.field[y][i] {
+                0 => row_0 += 1,
+                1 => row_1 += 1,
+                _ => (),
+            }
+            match self.field[i][x] {
+                0 => col_0 += 1,
+                1 => col_1 += 1,
+                _ => (),
+            }
+        }
+        (row_0, col_0, row_1, col_1)
     }
 
     fn is_valid(&self) -> bool {
         let mut max_0 = 0;
         let mut max_1 = 0;
         for y in 0..self.width {
-            let mut row_0: usize = 0;
-            let mut row_1: usize = 0;
-            let mut col_0: usize = 0;
-            let mut col_1: usize = 0;
             for x in 0..self.width {
                 if self.possible[y][x].is_empty() {
                     return false;
-                } else {
-                    match self.field[y][x] {
-                        1 => row_0 += 1,
-                        2 => row_1 += 1,
-                        _ => (),
-                    }
-                    match self.field[x][y] {
-                        1 => col_0 += 1,
-                        2 => col_1 += 1,
-                        _ => (),
-                    }
                 }
             }
+            let (row_0, col_0, row_1, col_1) = self.counter(y, y);
             if (self.width + 1) / 2 < row_0
                 || (self.width + 1) / 2 < row_1
                 || (self.width + 1) / 2 < col_0
@@ -163,7 +212,7 @@ impl Board {
         let mut abc: String = String::new();
         for y in 0..self.width {
             for x in 0..self.width {
-                abc.push(char::from(self.field[y][x] + 47));
+                abc.push(char::from((self.field[y][x] + 48) as u8));
             }
         }
         abc
@@ -172,7 +221,7 @@ impl Board {
     fn set_first_obvious(&mut self) -> bool {
         for y in 0..self.width {
             for x in 0..self.width {
-                if self.field[y][x] == 0 && self.possible[y][x].len() == 1 {
+                if self.field[y][x] == -1 && self.possible[y][x].len() == 1 {
                     self.set_field(x, y, self.possible[y][x][0]);
                     return true;
                 }
@@ -205,8 +254,10 @@ mod tests {
     fn test_4x4() {
         let mut test_board = Board {
             width: 4,
-            field: vec![vec![0; 4]; 4],
-            possible: vec![vec![vec![1, 2]; 4]; 4],
+            max_0: 0,
+            max_1: 0,
+            field: vec![vec![-1; 4]; 4],
+            possible: vec![vec![vec![0, 1]; 4]; 4],
         };
         test_board.init(".1.0..0..0..11.0");
         let solu = test_board.solve(1);
@@ -218,8 +269,10 @@ mod tests {
         let sol_num: usize = 3;
         let mut test_board = Board {
             width: 10,
-            field: vec![vec![0; 10]; 10],
-            possible: vec![vec![vec![1, 2]; 10]; 10],
+            max_0: 0,
+            max_1: 0,
+            field: vec![vec![-1; 10]; 10],
+            possible: vec![vec![vec![0, 1]; 10]; 10],
         };
         test_board.init("......10...0..........1..1.1...010.0...1.0....0.1.....0..11...0...........01....11.0.1....1...1....0");
         let solu = test_board.solve(10);

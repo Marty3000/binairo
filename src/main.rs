@@ -1,5 +1,4 @@
 /// wrapper to illustrate the usage of board and pretty_print module
-
 use std::time::Instant;
 
 mod board;
