@@ -1,8 +1,11 @@
-/// solves a binairo
 use std::cmp::max;
 
 const NEIGHBOR: [(i8, i8); 4] = [(0, 1), (1, 0), (0, -1), (-1, 0)];
 
+/// solves a binairo
+///
+/// holds the current state of the Board
+/// and provides some methos to solve the binairo
 pub struct Board {
     width: usize,
     max_0: usize,
@@ -12,6 +15,7 @@ pub struct Board {
 }
 
 impl Board {
+    /// create a new (empty) board
     pub fn new(width: usize) -> Self {
         Self {
             width,
@@ -22,6 +26,9 @@ impl Board {
         }
     }
 
+    /// initialyze the Board
+    ///
+    /// based on the givven input String (created by the init - module)
     pub fn init(&mut self, abc: &str) {
         let mut mabc = abc.chars().rev().collect::<String>();
         for y in 0..self.width {
@@ -34,6 +41,9 @@ impl Board {
         }
     }
 
+    /// solve the current binairo Board
+    ///
+    /// and return solutions - vector, based of the requested number of solutions
     pub fn solve(&mut self, num: usize) -> Vec<String> {
         let mut sol: Vec<String> = vec![];
         let mut obvi: bool = self.set_first_obvious();
@@ -76,11 +86,17 @@ impl Board {
         sol
     }
 
+    /// Set a cell to a given value (0 or 1)
+    ///
+    /// and call set_pfeld ( in order to maintain the possible values for each cell )
     fn set_field(&mut self, x: usize, y: usize, val: i8) {
         self.field[y][x] = val;
         self.set_pfeld(x, y, val);
     }
 
+    /// update the possible values for each cell
+    ///
+    /// based on the new value val in cell(x,y)
     fn set_pfeld(&mut self, x: usize, y: usize, val: i8) {
         self.possible[y][x] = vec![val];
         for (nx, ny) in NEIGHBOR {
@@ -165,6 +181,7 @@ impl Board {
         }
     }
 
+    /// counts the 0s and 1s in the row and column for a given cell(x, y)
     fn counter(&self, x: usize, y: usize) -> (usize, usize, usize, usize) {
         let mut row_0: usize = 0;
         let mut col_0: usize = 0;
@@ -185,6 +202,9 @@ impl Board {
         (row_0, col_0, row_1, col_1)
     }
 
+    /// check teh current state of the board
+    ///
+    /// returns wether the current state is valid, or not
     fn is_valid(&self) -> bool {
         let mut max_0 = 0;
         let mut max_1 = 0;
@@ -215,6 +235,9 @@ impl Board {
         true
     }
 
+    /// provides a String representing the cell-values of the board
+    ///
+    /// returns the cell-values of teh board as a String of length width * width
     fn print(&self) -> String {
         let mut abc: String = String::new();
         for y in 0..self.width {
@@ -225,6 +248,10 @@ impl Board {
         abc
     }
 
+    /// Sets the first obvious cell
+    ///
+    /// Searches the first empty cell that can be solved, and sets a cell-value
+    /// returns, wether it did find such a cell, or not
     fn set_first_obvious(&mut self) -> bool {
         for y in 0..self.width {
             for x in 0..self.width {
@@ -249,6 +276,10 @@ impl Board {
     }
 }
 
+/// verifies coordinates
+///
+/// internal function, returns
+/// - wether tuple (x, y) does fir into a board with dimension width x width
 fn valid_coord(width: &usize, x: &i8, y: &i8) -> bool {
     0 <= *x && *x < *width as i8 && 0 <= *y && *y < *width as i8
 }

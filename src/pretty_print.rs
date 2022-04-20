@@ -31,6 +31,10 @@ pub fn pprint(abc: &str, width: usize) -> String {
     act_board
 }
 
+/// creates a board-template for pprint
+///
+/// internal function, returns
+/// * a String, showing a board of dimension width x width
 fn mk_template(width: usize) -> String {
     let mut lines: [String; 4] = [
         String::from("\n  ╔"),
